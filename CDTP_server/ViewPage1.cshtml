@@ -1,0 +1,91 @@
+﻿@using System.IO;
+@{
+
+    var test = "34324";
+
+    Layout = null;
+
+    if (Request.QueryString.AllKeys.Length > 0)
+    {
+
+        var str = "{\"test\":\"34234\"}";
+
+        Response.Write(str);
+        Response.End();
+    }
+
+
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@test</title>
+</head>
+<body>
+    <div>
+
+        <button type="button" onclick="loadDoc('?r=23')">
+            Change Content
+        </button>
+
+        <input type="text" id="input_text" />
+        <button onclick="accept()"> Accept</button>
+
+    </div>
+
+
+    <script>
+
+
+
+
+        function accept() {
+
+            call_ajax('?deviceid=' + document.getElementById('input_text').value, 'json', (response) => { alert("incomin response:" + response + " v:"+ response.test) })
+
+
+        }
+
+        function call_ajax(url, response_type, callback) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.responseType = response_type;
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    if (callback)
+                        callback(xhttp.response);
+                }
+            };
+            xhttp.open("GET", url, true);
+            xhttp.send();
+        }
+        //'/api/sse?deviceid=test'
+        function sse_begin(url,  onmessage,onopen, onerror) {
+            var source = new EventSource(url);
+            if (onopen)
+                source.onopen = onopen;
+            if (onmessage)
+                source.onmessage = onmessage;
+            if (onerror)
+                source.onerror = onerror;
+        }
+
+
+        sse_begin("sse?deviceid=0",
+            (ev) => {
+            console.log("Error data:" + ev.data)
+            },
+            (ev) => {
+            console.log("incoming data:" + ev.data)
+            }
+            ,
+            (ev) => {
+            console.log("closed data:" + ev.data)
+            });
+
+
+    </script>
+</body>
+</html>

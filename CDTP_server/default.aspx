@@ -5,10 +5,10 @@
 
     if(Session["User"] != null)
     {
-       Response.Redirect("dashboard.aspx");
+       Response.Redirect("pages/dashboard.aspx");
     }else
     {
-      Response.Redirect("login.aspx");
+      Response.Redirect("pages/login.aspx");
     }
      
 

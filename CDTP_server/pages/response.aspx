@@ -12,7 +12,7 @@
         string password = Request.Form["password"];
 
 
-        var data =  Sql.Query($"select username , id  , name , surname   from customer where username = '{username}' and password='{password}'");
+        var data =  Sql.Query($"select username , id  , name , surname,deviceid   from customer where username = '{username}' and password='{password}'");
 
         if (data.Rows.Count == 0)
         {
@@ -29,6 +29,9 @@
             user.id = (int)data.Rows[0][1];
             user.name = data.Rows[0][2] as string;
             user.surname = data.Rows[0][3] as string;
+
+            var val = data.Rows[0][4];
+            user.deviceID = ((int)val).ToString();
 
             Session["User"] = user;
             Response.Write("success");

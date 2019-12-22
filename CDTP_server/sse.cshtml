@@ -1,0 +1,85 @@
+﻿@using System.Threading;
+@using System.Threading.Tasks;
+@using Npgsql;
+
+ 
+@{
+    new Thread(() =>
+    {
+
+        Response.StatusCode = 200;
+        Response.ContentType = "text/event-stream";
+
+
+
+        if (!Sql.isListening)
+        {
+            Sql.Listen();
+        }
+
+        if (!String.IsNullOrEmpty(Request.QueryString["deviceid"]))
+        {
+            var deviceid = Request.QueryString["deviceid"];
+
+
+
+            void nofitication(object sender, NpgsqlNotificationEventArgs args)
+            {
+                if(deviceid == args.AdditionalInformation.Split(',')[1])
+                {
+                    Response.Write($"data:thins are updated... {DateTime.Now} + {args.AdditionalInformation}\r\r");
+                    Response.Flush();
+
+
+                }
+
+
+            }
+
+
+
+            Sql.notify_conn.Notification += nofitication;
+
+
+            // Task.Run(() =>
+            // {
+            //     Response.ClientDisconnectedToken.WaitHandle.WaitOne();
+            try
+            {
+                Response.ClientDisconnectedToken.WaitHandle.WaitOne();
+
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine("cancellation event exception " + ex.Message);
+            }
+
+
+
+            // System.Threading.Thread.Sleep(2000);
+
+            Sql.notify_conn.Notification -= nofitication;
+            Response.Flush();
+            Response.End();
+
+            //  });
+ 
+            //Response.ClientDisconnectedToken.WaitHandle.WaitOne();
+
+
+
+        }else
+        {
+            Response.StatusCode = 404;
+            Response.Flush();
+            Response.End();
+        }
+
+
+    });
+
+
+
+
+}
